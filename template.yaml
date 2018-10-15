@@ -144,9 +144,9 @@ Resources:
     Properties:
       Type: HTTP
       ApiId: !GetAtt graphql31F74AEE.ApiId
-      Name: https___api_example_com
+      Name: https___stackery_io
       HttpConfig:
-        Endpoint: https://api.example.com
+        Endpoint: https://stackery.io
 Parameters:
   StackeryStackTagName:
     Type: String
