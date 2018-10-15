@@ -1,0 +1,158 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Stackery Serverless API Example Stack
+Resources:
+  graphql31F74AEE:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Sub
+        - ${ResourceName} From Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName}
+        - ResourceName: graphql
+      AuthenticationType: API_KEY
+      LogConfig:
+        FieldLogLevel: ERROR
+        CloudWatchLogsRoleArn: !GetAtt graphql31F74AEELogsRole.Arn
+    Metadata:
+      StackeryName: graphql
+  graphql31F74AEESchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      DefinitionS3Location: graphql31F74AEE/schema.graphql
+  graphql31F74AEELogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: appsync.amazonaws.com
+          Action: sts:AssumeRole
+      RoleName: !Sub ${AWS::StackName}-graphql31F74AEE-logging
+      Policies:
+        - PolicyName: Log
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/appsync/apis/*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/appsync/apis/*:log-stream:*
+  table880667C1:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-table880667C1
+    Metadata:
+      StackeryName: Posts
+  graphql31F74AEEQuerygetPostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      TypeName: Query
+      DataSourceName: !GetAtt graphql31F74AEETotable880667C1DataSource.Name
+      RequestMappingTemplateS3Location: graphql31F74AEE/Query-getPost-request.vm
+      ResponseMappingTemplateS3Location: graphql31F74AEE/Query-getPost-response.vm
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      FieldName: getPost
+    DependsOn: graphql31F74AEESchema
+  graphql31F74AEEMutationaddPostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      TypeName: Mutation
+      DataSourceName: !GetAtt graphql31F74AEETotable880667C1DataSource.Name
+      RequestMappingTemplateS3Location: graphql31F74AEE/Mutation-addPost-request.vm
+      ResponseMappingTemplateS3Location: graphql31F74AEE/Mutation-addPost-response.vm
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      FieldName: addPost
+    DependsOn: graphql31F74AEESchema
+  graphql31F74AEETotable880667C1DataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt graphql31F74AEETotable880667C1AccessRole.Arn
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      Name: table880667C1
+      DynamoDBConfig:
+        TableName: !Ref table880667C1
+        AwsRegion: !Ref AWS::Region
+  graphql31F74AEETotable880667C1AccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: appsync.amazonaws.com
+          Action: sts:AssumeRole
+      RoleName: !Sub ${AWS::StackName}-graphql31F74AEE-to-table880667C1
+      Policies:
+        - PolicyName: Access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:BatchGetItem
+                  - dynamodb:BatchWriteItem
+                Resource:
+                  - !GetAtt table880667C1.Arn
+                  - !Sub ${table880667C1.Arn}/index/*
+  graphql31F74AEEPostidResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      TypeName: Post
+      DataSourceName: !GetAtt graphql31F74AEETotable880667C1DataSource.Name
+      RequestMappingTemplateS3Location: graphql31F74AEE/Post-id-request.vm
+      ResponseMappingTemplateS3Location: graphql31F74AEE/Post-id-response.vm
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      FieldName: id
+    DependsOn: graphql31F74AEESchema
+  graphql31F74AEEPostauthorResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      TypeName: Post
+      DataSourceName: !GetAtt graphql31F74AEETohttpProxyE4775177DataSource.Name
+      RequestMappingTemplateS3Location: graphql31F74AEE/Post-author-request.vm
+      ResponseMappingTemplateS3Location: graphql31F74AEE/Post-author-response.vm
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      FieldName: author
+    DependsOn: graphql31F74AEESchema
+  graphql31F74AEETohttpProxyE4775177DataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      Type: HTTP
+      ApiId: !GetAtt graphql31F74AEE.ApiId
+      Name: https___api_example_com
+      HttpConfig:
+        Endpoint: https://api.example.com
+Parameters:
+  StackeryStackTagName:
+    Type: String
+    Description: Stack Name (injected by Stackery at deployment time)
+  StackeryEnvironmentTagName:
+    Type: String
+    Description: Environment Name (injected by Stackery at deployment time)
+Conditions:
+  table880667C1CreateNewResource: false
