@@ -147,11 +147,44 @@ Resources:
       Name: https___stackery_io
       HttpConfig:
         Endpoint: https://stackery.io
+  FrontEnd:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-frontend-${AWS::AccountId}
+      WebsiteConfiguration:
+        IndexDocument: index.html
+  PopulateFrontEnd:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-PopulateFrontEnd
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: PopulateFrontEnd
+      CodeUri: src/PopulateFrontEnd
+      Handler: index.handler
+      Runtime: nodejs12.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - S3CrudPolicy:
+            BucketName: !Ref FrontEnd
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref FrontEnd
+          BUCKET_ARN: !GetAtt FrontEnd.Arn
 Parameters:
   StackeryStackTagName:
     Type: String
     Description: Stack Name (injected by Stackery at deployment time)
   StackeryEnvironmentTagName:
+    Type: String
+    Description: Environment Name (injected by Stackery at deployment time)
+  StackTagName:
+    Type: String
+    Description: Stack Name (injected by Stackery at deployment time)
+  EnvironmentTagName:
     Type: String
     Description: Environment Name (injected by Stackery at deployment time)
 Conditions:
