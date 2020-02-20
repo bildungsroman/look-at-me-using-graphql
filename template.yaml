@@ -43,23 +43,6 @@ Resources:
                 Resource:
                   - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/appsync/apis/*
                   - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/appsync/apis/*:log-stream:*
-  table880667C1:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-table880667C1
-    Metadata:
-      StackeryName: Posts
   graphql31F74AEEQuerygetPostResolver:
     Type: AWS::AppSync::Resolver
     Properties:
@@ -86,9 +69,9 @@ Resources:
       Type: AMAZON_DYNAMODB
       ServiceRoleArn: !GetAtt graphql31F74AEETotable880667C1AccessRole.Arn
       ApiId: !GetAtt graphql31F74AEE.ApiId
-      Name: table880667C1
+      Name: Table
       DynamoDBConfig:
-        TableName: !Ref table880667C1
+        TableName: !Ref Table
         AwsRegion: !Ref AWS::Region
   graphql31F74AEETotable880667C1AccessRole:
     Type: AWS::IAM::Role
@@ -100,7 +83,7 @@ Resources:
           Principal:
             Service: appsync.amazonaws.com
           Action: sts:AssumeRole
-      RoleName: !Sub ${AWS::StackName}-graphql31F74AEE-to-table880667C1
+      RoleName: !Sub ${AWS::StackName}-graphql31F74AEE-to-Tabl
       Policies:
         - PolicyName: Access
           PolicyDocument:
@@ -117,8 +100,8 @@ Resources:
                   - dynamodb:BatchGetItem
                   - dynamodb:BatchWriteItem
                 Resource:
-                  - !GetAtt table880667C1.Arn
-                  - !Sub ${table880667C1.Arn}/index/*
+                  - !GetAtt Table.Arn
+                  - !Sub ${Table.Arn}/index/*
   graphql31F74AEEPostidResolver:
     Type: AWS::AppSync::Resolver
     Properties:
@@ -147,6 +130,23 @@ Resources:
       Name: https___stackery_io
       HttpConfig:
         Endpoint: https://stackery.io
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: !Sub ${AWS::StackName}-Table
+    Metadata:
+      StackeryName: Posts
 Parameters:
   StackeryStackTagName:
     Type: String
@@ -155,4 +155,4 @@ Parameters:
     Type: String
     Description: Environment Name (injected by Stackery at deployment time)
 Conditions:
-  table880667C1CreateNewResource: false
+  TableCreateNewResource: false
