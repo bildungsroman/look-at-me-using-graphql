@@ -104,8 +104,8 @@ Resources:
     Properties:
       TypeName: Query
       DataSourceName: !GetAtt graphApiTotable880667C1DataSource.Name
-      RequestMappingTemplateS3Location: graphql31F74AEE/Query-getPost-request.vm
-      ResponseMappingTemplateS3Location: graphql31F74AEE/Query-getPost-response.vm
+      RequestMappingTemplateS3Location: graphApi/Query-getPost-request.vm
+      ResponseMappingTemplateS3Location: graphApi/Query-getPost-response.vm
       ApiId: !GetAtt graphApi.ApiId
       FieldName: getPost
     DependsOn: graphApiSchema
@@ -114,8 +114,8 @@ Resources:
     Properties:
       TypeName: Mutation
       DataSourceName: !GetAtt graphApiTotable880667C1DataSource.Name
-      RequestMappingTemplateS3Location: graphql31F74AEE/Mutation-addPost-request.vm
-      ResponseMappingTemplateS3Location: graphql31F74AEE/Mutation-addPost-response.vm
+      RequestMappingTemplateS3Location: graphApi/Mutation-addPost-request.vm
+      ResponseMappingTemplateS3Location: graphApi/Mutation-addPost-response.vm
       ApiId: !GetAtt graphApi.ApiId
       FieldName: addPost
     DependsOn: graphApiSchema
@@ -124,8 +124,8 @@ Resources:
     Properties:
       TypeName: Post
       DataSourceName: !GetAtt graphApiTotable880667C1DataSource.Name
-      RequestMappingTemplateS3Location: graphql31F74AEE/Post-id-request.vm
-      ResponseMappingTemplateS3Location: graphql31F74AEE/Post-id-response.vm
+      RequestMappingTemplateS3Location: graphApi/Post-id-request.vm
+      ResponseMappingTemplateS3Location: graphApi/Post-id-response.vm
       ApiId: !GetAtt graphApi.ApiId
       FieldName: id
     DependsOn: graphApiSchema
@@ -134,8 +134,8 @@ Resources:
     Properties:
       TypeName: Post
       DataSourceName: !GetAtt graphApiTohttpProxyE4775177DataSource.Name
-      RequestMappingTemplateS3Location: graphql31F74AEE/Post-author-request.vm
-      ResponseMappingTemplateS3Location: graphql31F74AEE/Post-author-response.vm
+      RequestMappingTemplateS3Location: graphApi/Post-author-request.vm
+      ResponseMappingTemplateS3Location: graphApi/Post-author-response.vm
       ApiId: !GetAtt graphApi.ApiId
       FieldName: author
     DependsOn: graphApiSchema
